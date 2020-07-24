@@ -1,51 +1,72 @@
 /*
-  * Copyright 2020 Bryson Banks, David Campbell, and Jeffrey Nelson.  All rights reserved.
-  *
-  * BarnesHutSimulation: Body.h
-  */
+ * Copyright 2020 Bryson Banks, David Campbell, and Jeffrey Nelson.  All rights reserved.
+ *
+ * BarnesHutSimulation: Body.h
+ */
 
 #ifndef _BODY_DEFINED
 #define _BODY_DEFINED
 
 #include <iostream>
 #include <cmath>
+#include <tuple>
+
+typedef std::tuple<double, double, double> vector_3d;
+
+constexpr static double G = 0.00000000006674;  // gravitational constant
+constexpr static double xScale = 1.0;          // scaling factor for x plane
+constexpr static double yScale = 1.0;          // scaling factor for y plane
+constexpr static double zScale = 1.0;          // scaling factor for z plane
+constexpr static int X = 0;                    // index for x value in vector
+constexpr static int Y = 1;                    // index for y value in vector
+constexpr static int Z = 2;                    // index for z value in vector
 
 class Body {
 
 public:
-    const static double G;       // gravitational constant
-    const static double xScale;  // scaling factor for x plane
-    const static double yScale;  // scaling factor for y plane
-    const static double zScale;  // scaling factor for z plane
-
+    int id;         // id of body
     double mass;    // mass in kg
-    double pos[3];  // center of mass position vector: <x, y, z>
-    double acc[3];  // acceleration vector: <a_x, a_y, a_z>
-    double vel[3];  // velocity vector: <v_x, v_y, v_z>
+    vector_3d pos;  // center of mass position vector: <x, y, z>
+    vector_3d acc;  // acceleration vector: <a_x, a_y, a_z>
+    vector_3d vel;  // velocity vector: <v_x, v_y, v_z>
 
-    Body(double mass, double pos[3], double acc[3], double vel[3]);
+    /* Constructors */
+    Body();
+    Body(int id, double mass, const vector_3d& pos, const vector_3d& acc, const vector_3d& vel);
 
-    /* Print body details */
-    void print(int i, double t);
+    /* Print body details to I/O output stream */
+    friend std::ostream& operator<<(std::ostream& out, const Body& b);
 
-    /* Calculate the distance between this body and boyd b */
-    double distance(Body* b);
+    /* Calculate the distance between this body and body b */
+    double distance(const Body& b);
 
-    /* Calculate the gravitational force vector on body b produced by this body */
-    double* grav_force(Body* b);
-
-    /* Apply force vector f on this body by updating acceleration vector */
-    void apply_force(double f[3]);
+    /* Calculate the gravitational force vector on this body produced by body b,
+       and apply that force on this body by updating the acceleration vector */
+    void force(const Body& b);
 
     /* Simulate movement of this body for t seconds given initial acceleration and velocity */
-    void sim_movement(double t);
-
-    /* Calculate the center of mass position for the given array of bodies */
-    static double* center_of_mass(Body* bodies[], int n);
+    void move(double t);
 
     /* Demonstrates usage of Body class */
     static void demo(void);
 
 };
+
+/* Return a new body ref representing the center of mass for the given array of bodies */
+static Body center_of_mass(Body bodies[], int n) {
+    double totalMass = 0;
+    vector_3d cmPos = std::make_tuple(0.0, 0.0, 0.0);
+    for (int i = 0; i < n; i++) {
+        std::get<X>(cmPos) += (bodies[i].mass * std::get<X>(bodies[i].pos));
+        std::get<Y>(cmPos) += (bodies[i].mass * std::get<Y>(bodies[i].pos));
+        std::get<Z>(cmPos) += (bodies[i].mass * std::get<Z>(bodies[i].pos));
+        totalMass += bodies[i].mass;
+    }
+    std::get<X>(cmPos) /= totalMass;
+    std::get<Y>(cmPos) /= totalMass;
+    std::get<Z>(cmPos) /= totalMass;
+    Body b = Body(0, totalMass, cmPos, std::make_tuple(0.0, 0.0, 0.0), std::make_tuple(0.0, 0.0, 0.0));
+    return b;
+}
 
 #endif // _BODY_DEFINED
