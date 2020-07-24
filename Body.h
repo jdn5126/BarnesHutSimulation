@@ -19,7 +19,7 @@ public:
 	const static double zScale;  // scaling factor for z plane
 
 	double mass;    // mass in kg
-	double pos[3];  // position vector: <x, y, z>
+	double pos[3];  // center of mass position vector: <x, y, z>
 	double acc[3];  // acceleration vector: <a_x, a_y, a_z>
 	double vel[3];  // velocity vector: <v_x, v_y, v_z>
 
@@ -40,45 +40,11 @@ public:
 	/* Simulate movement of this body for t seconds given initial acceleration and velocity */
 	void sim_movement(double t);
 
-	/* Demonstrates usage of Body class for gravitational force calculations and movement simulations */
-	static void demo(void) {
-        const int n = 10;
-        const int t = 1;
-        double zero[3] = { 0, 0, 0 };
+    /* Calculate the center of mass position for the given array of bodies */
+    static double* center_of_mass(Body* bodies[], int n);
 
-        // generate n bodies with some mass and initial position (no initial acceleration or velocity)
-        Body* bodies[n];
-        Body* bodies_orig[n];
-        for (int i = 0; i < n; i++) {
-            double mass = ((double)i + 1) * pow(10, 10);
-            double pos[3] = { ((double)i + 1) * pow(10, i/2), ((double)i + 1) * pow(10, i/2), ((double)i + 1) * pow(10, i/2) };
-            bodies[i] = new Body(mass, pos, zero, zero);
-            bodies_orig[i] = new Body(mass, pos, zero, zero);
-        }
-
-        // sequentially calculate all pairwise gravitational forces and apply them,
-        // this will update all bodies' acceleration vectors in prep for next movement sim
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i != j) {
-                    double* f = bodies[j]->grav_force(bodies[i]); // force on i produced by j
-                    bodies[i]->apply_force(f); // apply force on i
-                }
-            }
-        }
-
-        // simulate movement on all bodies for t seconds
-        for (int i = 0; i < n; i++) {
-            bodies[i]->sim_movement(t);
-        }
-
-        // single timestep completed, print some before and after result
-        std::cout.precision(20);
-        for (int i = 0; i < n; i++) {
-            bodies_orig[i]->print(i, 0);
-            bodies[i]->print(i, t);
-        }
-	}
+	/* Demonstrates usage of Body class */
+	static void demo(void);
 
 };
 
