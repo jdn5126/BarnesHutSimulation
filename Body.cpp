@@ -8,16 +8,25 @@
 
 #include "Body.h"
 
-/* Default Constructor */
+/* Empty default constructor */
 Body::Body() {
     this->id = 0;
     this->mass = 0.0;
-    this->pos = std::make_tuple(0.0, 0.0, 0.0);
-    this->acc = std::make_tuple(0.0, 0.0, 0.0);
-    this->vel = std::make_tuple(0.0, 0.0, 0.0);
+    this->pos = zero_vect();
+    this->acc = zero_vect();
+    this->vel = zero_vect();
 }
 
-/* Full Constructor */
+/* Partial constructor (no initial acceleration or velocity) */
+Body::Body(int id, double mass, const vector_3d& pos) {
+    this->id = id;
+    this->mass = mass;
+    this->pos = pos;
+    this->acc = zero_vect();
+    this->vel = zero_vect();
+}
+
+/* Full constructor */
 Body::Body(int id, double mass, const vector_3d& pos, const vector_3d& acc, const vector_3d& vel) {
     this->id = id;
     this->mass = mass;
@@ -26,7 +35,7 @@ Body::Body(int id, double mass, const vector_3d& pos, const vector_3d& acc, cons
     this->vel = vel;
 }
 
-/* Print body details to I/O output stream */
+/* Override "<<" operator for printing body details to I/O output stream */
 std::ostream& operator<<(std::ostream& out, const Body& b) {
     out << "Body " << b.id << ": " << std::endl;
     out << "..pos = <" << std::get<X>(b.pos) << ", " << std::get<Y>(b.pos) << ", " << std::get<Z>(b.pos) << ">" << std::endl;
@@ -47,7 +56,7 @@ double Body::distance(const Body& b) {
 /* Calculate the gravitational force vector on this body produced by body b,
    and apply that force on this body by updating the acceleration vector */
 void Body::force(const Body& b) {
-    vector_3d f = std::make_tuple(0.0, 0.0, 0.0);
+    vector_3d f = zero_vect();
     double mag = 0;
     double dist = this->distance(b);
 
@@ -55,6 +64,7 @@ void Body::force(const Body& b) {
     if (dist != 0) {
         // f_mag = (G * m1 * m2) / (d^2)
         mag = (G * this->mass * b.mass) / pow(dist, 2);
+
         // f_x = ((x1 - x2) / d) * f_mag
         std::get<X>(f) = ((std::get<X>(b.pos) - std::get<X>(this->pos)) * xScale) / dist * mag;
         std::get<Y>(f) = ((std::get<Y>(b.pos) - std::get<Y>(this->pos)) * yScale) / dist * mag;
@@ -92,21 +102,27 @@ void Body::demo(void) {
     constexpr int t = 1;
     constexpr int steps = 2;
 
+    constexpr double mass[n] = {
+        50000000000,
+        100000000000,
+        100000000000,
+        150000000000
+    };
+
+    constexpr vector_3d pos[n] = {
+        std::make_tuple(0, 0, 0),
+        std::make_tuple(5, 0, 0),
+        std::make_tuple(0, 5, 0),
+        std::make_tuple(5, 5, 0)
+    };
+
     // generate n bodies with some mass and initial position (no initial acceleration or velocity)
     Body bodies[n];
-    Body bodies_orig[n]; // for comparison after simulated movement
-
-    constexpr double mass[n] = { 50000000000, 100000000000, 100000000000, 150000000000 };
-    constexpr vector_3d pos[n] = { std::make_tuple(0, 0, 0), std::make_tuple(5, 0, 0), std::make_tuple(0, 5, 0), std::make_tuple(5, 5, 0) };
-
-    bodies[0] = Body(1, mass[0], pos[0], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies_orig[0] = Body(1, mass[0], pos[0], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies[1] = Body(2, mass[1], pos[1], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies_orig[1] = Body(2, mass[1], pos[1], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies[2] = Body(3, mass[2], pos[2], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies_orig[2] = Body(3, mass[2], pos[2], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies[3] = Body(4, mass[3], pos[3], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
-    bodies_orig[3] = Body(4, mass[3], pos[3], std::make_tuple(0, 0, 0), std::make_tuple(0, 0, 0));
+    Body bodies_orig[n];  // for comparison after simulated movement
+    for (int i = 0; i < n; i++) {
+        bodies[i] = Body(i+1, mass[i], pos[i], zero_vect(), zero_vect());
+        bodies_orig[i] = Body(i+1, mass[i], pos[i], zero_vect(), zero_vect());
+    }
 
     // calculate starting center of mass position of all n bodies
     Body cm1 = center_of_mass(bodies, n);
@@ -116,10 +132,10 @@ void Body::demo(void) {
 
         // sequentially calculate all pairwise gravitational forces and apply them,
         // this will update all bodies' acceleration vectors in prep for next movement sim
-        for (int k = 0; k < n; k++) {
-            for (int j = 0; j < n; j++) {
-                if (k != j) {
-                    bodies[k].force(bodies[j]);
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                if (j != k) {
+                    bodies[j].force(bodies[k]);
                 }
             }
         }
@@ -141,6 +157,8 @@ void Body::demo(void) {
 
     // calculate final center of mass position of all n bodies
     Body cm2 = center_of_mass(bodies, n);
+
+    // print center of mass before and after results
     std::cout << "Center of Mass Before And After Movement:\n" << std::endl;
     std::cout << cm1;
     std::cout << cm2 << std::endl;

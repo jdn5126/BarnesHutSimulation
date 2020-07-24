@@ -13,13 +13,15 @@
 
 typedef std::tuple<double, double, double> vector_3d;
 
-constexpr static double G = 0.00000000006674;  // gravitational constant
-constexpr static double xScale = 1.0;          // scaling factor for x plane
-constexpr static double yScale = 1.0;          // scaling factor for y plane
-constexpr static double zScale = 1.0;          // scaling factor for z plane
-constexpr static int X = 0;                    // index for x value in vector
-constexpr static int Y = 1;                    // index for y value in vector
-constexpr static int Z = 2;                    // index for z value in vector
+constexpr int X = 0;  // for indexing the x value in a vector_3d
+constexpr int Y = 1;  // for indexing the y value in a vector_3d
+constexpr int Z = 2;  // for indexing the z value in a vector_3d
+
+constexpr double xScale = 1.0;  // scaling factor for x plane
+constexpr double yScale = 1.0;  // scaling factor for y plane
+constexpr double zScale = 1.0;  // scaling factor for z plane
+
+constexpr double G = 0.00000000006674;  // gravitational constant
 
 class Body {
 
@@ -30,11 +32,11 @@ public:
     vector_3d acc;  // acceleration vector: <a_x, a_y, a_z>
     vector_3d vel;  // velocity vector: <v_x, v_y, v_z>
 
-    /* Constructors */
     Body();
+    Body(int id, double mass, const vector_3d& pos);
     Body(int id, double mass, const vector_3d& pos, const vector_3d& acc, const vector_3d& vel);
 
-    /* Print body details to I/O output stream */
+    /* Override "<<" operator for printing body details to I/O output stream */
     friend std::ostream& operator<<(std::ostream& out, const Body& b);
 
     /* Calculate the distance between this body and body b */
@@ -52,10 +54,16 @@ public:
 
 };
 
-/* Return a new body ref representing the center of mass for the given array of bodies */
-static Body center_of_mass(Body bodies[], int n) {
+/* Generate a new 3-dimensional zero vector of type vector_3d */
+constexpr vector_3d zero_vect() {
+    return (vector_3d)std::make_tuple(0.0, 0.0, 0.0);
+}
+
+/* Return a new body representing the center of mass for the given array of bodies */
+inline Body center_of_mass(Body bodies[], int n) {
+    // x_cm = ((m_1 * x_1) + (m_2 * x_2) + ... ) / (m_1 + m_2 + ... )
     double totalMass = 0;
-    vector_3d cmPos = std::make_tuple(0.0, 0.0, 0.0);
+    vector_3d cmPos = zero_vect();
     for (int i = 0; i < n; i++) {
         std::get<X>(cmPos) += (bodies[i].mass * std::get<X>(bodies[i].pos));
         std::get<Y>(cmPos) += (bodies[i].mass * std::get<Y>(bodies[i].pos));
@@ -65,7 +73,7 @@ static Body center_of_mass(Body bodies[], int n) {
     std::get<X>(cmPos) /= totalMass;
     std::get<Y>(cmPos) /= totalMass;
     std::get<Z>(cmPos) /= totalMass;
-    Body b = Body(0, totalMass, cmPos, std::make_tuple(0.0, 0.0, 0.0), std::make_tuple(0.0, 0.0, 0.0));
+    Body b = Body(0, totalMass, cmPos, zero_vect(), zero_vect());
     return b;
 }
 
