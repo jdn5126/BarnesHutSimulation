@@ -14,6 +14,7 @@ class Node {
 public:
     virtual bool isLeaf() = 0;
     Node(Node *parent);
+    virtual ~Node() {};
 // Member variables left public for simplicity.
     Node *parent;
     int octet; // parent octet that Node consumes
@@ -43,8 +44,8 @@ public:
     vector_3d pos;
     vector_3d lowerBound;
     vector_3d upperBound;
-    std::vector<Node *> children;
     int numChildren;
+    Node **children;
 }; // end class Root
 
 // Data structure representing OctTree for Barnes-Hut Simulation
@@ -54,9 +55,10 @@ public:
             vector_3d upperBound);
     ~OctTree();
 
-    // Helper functions to insert particle into Tree
+    // Helper functions to insert particles into Tree
     void insert(Leaf *particle);
-    void insert(Root *root, Leaf *particle);
+    void insertParticle(Root *root, Leaf *particle, const int octet);
+    void insertParticles(std::vector<Leaf *> &particles);
 
     // Helper function to find octet to insert particle into
     int findOctet(const vector_3d &rootPos, const vector_3d &bodyPos);

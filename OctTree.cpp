@@ -6,6 +6,8 @@
 
 #include <assert.h>
 #include <iostream>
+#include <map>
+#include <thread>
 #include "OctTree.h"
 
 static vector_3d
@@ -84,10 +86,8 @@ OctTree::OctTree(std::vector<Leaf *> &particles, vector_3d lowerBound,
     // Construct root of the tree
     this->root = new Root(nullptr, lowerBound, upperBound);
 
-    // Insert each node into the tree
-    for(Leaf *particle : particles) {
-        insert(this->root, particle);
-    }
+    // Insert particles into tree in parallel
+    insertParticles(particles);
 }
 
 // Destroy OctTree by freeing memory allocated for root
@@ -97,14 +97,13 @@ OctTree::~OctTree() {
 
 void
 OctTree::insert(Leaf *particle) {
-    insert(this->root, particle);
+    int octet = findOctet(this->root->pos, particle->body.pos);
+    insertParticle(this->root, particle, octet);
 }
 
 // Insert new particle into tree rooted at root
 void
-OctTree::insert(Root *root, Leaf *particle) {
-    // Determine which octet the particle belongs in
-    int octet = findOctet(root->pos, particle->body.pos);
+OctTree::insertParticle(Root *root, Leaf *particle, const int octet) {
     Node *child = root->children[octet];
 
     // If octet is empty, insert leaf at octet
@@ -120,11 +119,39 @@ OctTree::insert(Root *root, Leaf *particle) {
         Root *newRoot = new Root(root, bounds.first, bounds.second);
         newRoot->octet = octet;
         root->children[octet] = newRoot;
-        insert(newRoot, (Leaf *)child);
-        insert(newRoot, particle);
+        Leaf *leaf = (Leaf *)child;
+        insertParticle(newRoot, leaf,
+                findOctet(newRoot->pos, leaf->body.pos));
+        insertParticle(newRoot, particle,
+                findOctet(newRoot->pos, particle->body.pos));
     } else {
         // Continue down tree
-        insert((Root *)root->children[octet], particle);
+        Root *newRoot = (Root *)child;
+        insertParticle(newRoot, particle,
+                findOctet(newRoot->pos, particle->body.pos));
+    }
+}
+
+// Insert particles into OctTree in parallel
+void
+OctTree::insertParticles(std::vector<Leaf *> &particles) {
+    std::map<int, std::thread> threadPool;
+    for (Leaf *particle : particles) {
+        // Determine octet for particle
+        int octet = findOctet(this->root->pos, particle->body.pos);
+        // If existing thread is already executing on octet, wait for it to complete.
+        std::map<int, std::thread>::iterator it = threadPool.find(octet);
+        if (it != threadPool.end()) {
+            it->second.join();
+        }
+        // Launch thread to insert particle into octet.
+        threadPool[octet] =
+            std::thread(&OctTree::insertParticle, this, this->root, particle, octet);
+    }
+    // Join all in-flight threads
+    std::map<int, std::thread>::iterator it;
+    for (it = threadPool.begin(); it != threadPool.end(); ++it) {
+        it->second.join();
     }
 }
 
@@ -154,9 +181,13 @@ OctTree::maybeReplaceRoot(Root *root) {
     } else if (root->numChildren == 1) {
         // If root has only one child, and that child is a Leaf, replace root
         Leaf *leaf = nullptr;
-        for (Node *node : root->children) {
+        for (int i=0; i < 8; ++i) {
+            Node *node = root->children[i];
             if (node != nullptr && node->isLeaf()) {
                 leaf = (Leaf *)node;
+                // Clear root pointer to leaf so that it does not try to delete it
+                // in Root destructor.
+                root->children[i] = nullptr;
                 break;
             }
         }
@@ -183,7 +214,7 @@ OctTree::print() {
 void
 OctTree::printRecurse(Root *root) {
     // Fixed iteration order to help with debugging
-    for(int i=0; i < root->children.size(); i++) {
+    for(int i=0; i < 8; i++) {
         Node *child = root->children[i];
         if( child == nullptr ) {
             continue;
@@ -214,8 +245,8 @@ Root::Root(Node *parent, vector_3d lowerBound, vector_3d upperBound ) : Node(par
     this->lowerBound = lowerBound;
     this->upperBound = upperBound;
     this->pos = average(lowerBound, upperBound);
-    this->children.resize(8);
-    for(int i=0; i < 8; i++) {
+    this->children = new Node *[8];
+    for (int i=0; i < 8; ++i) {
         this->children[i] = nullptr;
     }
     this->numChildren = 0;
@@ -223,7 +254,9 @@ Root::Root(Node *parent, vector_3d lowerBound, vector_3d upperBound ) : Node(par
 
 Root::~Root() {
     // Delete children
-    this->children.clear();
+    for (int i=0; i < 8; ++i) {
+        delete this->children[i];
+    }
 }
 
 std::ostream& operator<<(std::ostream& out, const Leaf& l) {
