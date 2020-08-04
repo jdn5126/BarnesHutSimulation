@@ -9,7 +9,7 @@
 #include "OctTree.h"
 
 static vector_3d
-average( vector_3d &lowerBound, vector_3d &upperBound) {
+average(const vector_3d &lowerBound, const vector_3d &upperBound) {
     double xPos = (std::get<X>(lowerBound) + std::get<X>(upperBound)) / 2;
     double yPos = (std::get<Y>(lowerBound) + std::get<Y>(upperBound)) / 2;
     double zPos = (std::get<Z>(lowerBound) + std::get<Z>(upperBound)) / 2;
@@ -20,7 +20,7 @@ static std::pair<vector_3d, vector_3d>
 getBounds(Root *root, int octet) {
     vector_3d lowerBound;
     vector_3d upperBound;
-    double x, y, z;
+    double x, y;
 
     // Return bounds for new root node within octet
     // TODO: Figure out Z coordinates...
@@ -49,13 +49,13 @@ getBounds(Root *root, int octet) {
 }
 
 int
-OctTree::findOctet( Root *root, Body *particle ) {
-    double rootX = std::get<X>(root->pos);
-    double rootY = std::get<Y>(root->pos);
-    double rootZ = std::get<Z>(root->pos);
-    double particleX = std::get<X>(particle->pos);
-    double particleY = std::get<Y>(particle->pos);
-    double particleZ = std::get<Z>(particle->pos);
+OctTree::findOctet(const vector_3d &rootPos, const vector_3d &bodyPos) {
+    double rootX = std::get<X>(rootPos);
+    double rootY = std::get<Y>(rootPos);
+    double rootZ = std::get<Z>(rootPos);
+    double particleX = std::get<X>(bodyPos);
+    double particleY = std::get<Y>(bodyPos);
+    double particleZ = std::get<Z>(bodyPos);
 
     if( particleX >= rootX && particleY >= rootY && particleZ >= rootZ ) {
         return 0;
@@ -74,21 +74,20 @@ OctTree::findOctet( Root *root, Body *particle ) {
     } else if( particleX >= rootX && particleY < rootY && particleZ < rootZ ) {
         return 7;
     } else {
-        std::cerr << "Cannot determine octet for " << particle << " relative to " <<
-            root << std::endl;
-        assert(false);
+        assert(false && "cannot determine octet");
     }
 }
 
 // Construct OctTree given list of particles
-OctTree::OctTree( std::vector<Body *> &particles, vector_3d lowerBound, vector_3d upperBound ) {
+OctTree::OctTree(std::vector<Leaf *> &particles, vector_3d lowerBound,
+                 vector_3d upperBound) {
     // Construct root of the tree
     this->root = new Root(nullptr, lowerBound, upperBound);
 
     // Insert each node into the tree
-    for( Body *particle : particles ) {
-        insert(this->root, new Leaf(this->root, particle));
-    }   
+    for(Leaf *particle : particles) {
+        insert(this->root, particle);
+    }
 }
 
 // Destroy OctTree by freeing memory allocated for root
@@ -98,15 +97,15 @@ OctTree::~OctTree() {
 
 // Insert new particle into tree rooted at root
 void
-OctTree::insert( Root *root, Leaf *particle ) {
+OctTree::insert(Root *root, Leaf *particle) {
     // Determine which octet the particle belongs in
-    int octet = findOctet(root, particle->body);
+    int octet = findOctet(root->pos, particle->body.pos);
     Node *child = root->children[octet];
 
     // If octet is empty, insert leaf at octet
-    if( child == nullptr ) {
+    if (child == nullptr) {
         root->children[octet] = particle;
-    } else if( child->isLeaf() ) {
+    } else if (child->isLeaf()) {
         // If child is a leaf, construct a new subtree and re-insert child
         // along with particle.
         std::pair<vector_3d, vector_3d> bounds = getBounds(root, octet);
@@ -146,17 +145,17 @@ OctTree::printRecurse(Root *root) {
 }
 
 // Default constructor for Node
-Node::Node( Node *parent ) {
+Node::Node(Node *parent) {
     this->parent = parent;
 }
 
 // Leaf Constructor
-Leaf::Leaf( Node *parent, Body *body ) : Node(parent) {
+Leaf::Leaf(Node *parent, Body &&body) : Node(parent) {
     this->body = body;
 }
 
 // Root Constructor
-Root::Root( Node *parent, vector_3d lowerBound, vector_3d upperBound ) : Node(parent) {
+Root::Root(Node *parent, vector_3d lowerBound, vector_3d upperBound ) : Node(parent) {
     this->lowerBound = lowerBound;
     this->upperBound = upperBound;
     this->pos = average(lowerBound, upperBound);
@@ -172,8 +171,8 @@ Root::~Root() {
 }
 
 std::ostream& operator<<(std::ostream& out, const Leaf& l) {
-    out << "Leaf " << l.body->id << ": (" << std::get<X>(l.body->pos) << ", " <<
-        std::get<Y>(l.body->pos) << ", " << std::get<Z>(l.body->pos) << ")";
+    out << "Leaf " << l.body.id << ": (" << std::get<X>(l.body.pos) << ", " <<
+        std::get<Y>(l.body.pos) << ", " << std::get<Z>(l.body.pos) << ")";
     return out;
 }
 

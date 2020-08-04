@@ -20,13 +20,13 @@ protected:
 
 class Leaf : public Node {
 public:
-    Leaf(Node *parent, Body *body);
+    Leaf(Node *parent, Body &&body);
     bool isLeaf() {
         return true;
     }
     friend std::ostream& operator<<(std::ostream& out, const Leaf& f);
     // TODO: make member variables private
-    Body *body;
+    Body body;
 }; // end class Leaf
 
 class Root : public Node {
@@ -37,7 +37,8 @@ public:
         return false;
     }
     friend std::ostream& operator<<(std::ostream& out, const Root& r);
-    // TODO: make member variables private
+
+    // Member variables left public for simplicity
     vector_3d pos;
     vector_3d lowerBound;
     vector_3d upperBound;
@@ -47,14 +48,15 @@ public:
 // Data structure representing OctTree for Barnes-Hut Simulation
 class OctTree {
 public:
-    OctTree(std::vector<Body *> &particles, vector_3d lowerBound, vector_3d upperBound);
+    OctTree(std::vector<Leaf *> &particles, vector_3d lowerBound,
+            vector_3d upperBound);
     ~OctTree();
 
     // Helper function to insert particle into Tree
     void insert(Root *root, Leaf *particle);
 
     // Helper function to find octet to insert particle into
-    int findOctet(Root *root, Body *particle);
+    int findOctet(const vector_3d &rootPos, const vector_3d &bodyPos);
 
     // Helper function to print Tree
     void print();
