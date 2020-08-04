@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+barnesHut
+
+# macOS debug symbols
+*.dSYM/
