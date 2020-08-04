@@ -64,7 +64,7 @@ Body* getBody(std::ifstream& f);
 
 
 /* Generate a new 3-dimensional zero vector of type vector_3d */
-constexpr vector_3d zero_vect() {
+inline vector_3d zero_vect() {
     return (vector_3d)std::make_tuple(0.0, 0.0, 0.0);
 }
 

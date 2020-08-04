@@ -152,7 +152,7 @@ void Body::demo(void) {
         150000000000
     };
 
-    constexpr vector_3d pos[n] = {
+    const vector_3d pos[n] = {
         std::make_tuple(0, 0, 0),
         std::make_tuple(5, 0, 0),
         std::make_tuple(0, 5, 0),
