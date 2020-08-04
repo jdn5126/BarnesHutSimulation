@@ -1,75 +1,115 @@
 #include "Body.h"
+#include <math.h>
+#include <fstream>
 
-#define XRANGE (290e9) // width of the solar system in km
-#define YRANGE (290e9)
-#define ZRANGE (290e9)
+#define XRANGE (290*pow(10, 12)) // apx. width of the solar system in meters
+#define YRANGE (290*pow(10, 12))
+#define ZRANGE (290*pow(10, 12))
 
-#define XACC (100)
-#define YACC (100)
-#define ZACC (100)
+#define MASS_MAX (1.9*pow(10,27)) // mass of jupiter in kg ( make it the max )
 
-#define XVEL (100e3) // plants velocity are in about ~1000s km/ hour
-#define YVEL (100e3)
-#define ZVEL (100e3)
+#define MAXR (1.0*pow(10, 9)) //min allowable distance generated between masses 1,000,000 km
 
-#define MASS_MIN (1e10)
-#define MASS_MAX (1.9e27) // mass of jupiter ( make it the max )
-
-#define MAXR (1e6)
-
-#define NUM_BODIES (500)
+using namespace std;
 
 
+/*Creates a Random Double Floating Point Integer in the 
+ *specified range*/
 inline double randDoubleRange(double a, double b)
 {
   return ((b - a) * ((double)rand() / RAND_MAX)) + a;
 }
 
 
-Body bodies[NUM_BODIES];
+/*Checks if inputs were generated already in the
+ *bodies array that are in the range by MAXR*/
+bool bodiesInMinRange(Body* bodies, int index, Body newBody){
+  int i;
 
-bool bodiesInRange(int index, Body newBody){
+  //TODO: could parallelize this loop
+  for (i = 0; i < index; i++){
 
-  for (int i = 0; i < index, i++){
-
-    if (bodies[i].dist(newBody) < MAXR){
+    if (bodies[i].distance(newBody) < MAXR){
       return true;
     }
-    return false;
 
   }
+  return false;
 
 }
 
-int main(){
+
+/*generates the input and outputs it to a 
+ *file*/
+int main(int argc, char* argv[]){
+
+  if (argc < 3){
+    cout << "ERROR: please use the usage:" << endl;
+    cout << "./inputGen <filename> <numbodies>" << endl;
+    exit(-1);
+  }
+
+  ofstream outfilep;
+  char* outputfile = argv[1];
+  outfilep.open(outputfile, ios::out);
+
+  if (!outfilep.is_open()){
+    cout << "ERROR: could not open file " << outputfile << endl;
+    exit(-1);
+  }
+
+  int num_bodies = atoi(argv[2]);
+  Body* bodies = new Body[num_bodies];
 
   vector_3d randPos, randVel, randAcc;
-  doube randMass;
+  double randMass, x, y, z;
+  int randExp;
 
   int i = 0;
-  while( i < NUM_BODIES){
+  while( i < num_bodies){
 
-    randPos[0] = randDoubleRange(0, XRANGE);
-    randPos[1] = randDoubleRange(0, YRANGE);
-    randPos[2] = randDoubleRange(0, ZRANGE);
+    /* make random coordinates/mass */
+    x = randDoubleRange(0, XRANGE);
+    y = randDoubleRange(0, YRANGE);
+    z = randDoubleRange(0, ZRANGE);
+    randPos = make_tuple(x, y, z);
+    randMass = randDoubleRange(1, MASS_MAX);
 
-    randAcc[0] = randDoubleRange(0, XACC);
-    randAcc[1] = randDoubleRange(0, YACC);
-    randAcc[2] = randDoubleRange(0, ZACC);
-
-    randVel[0] = randDoubleRange(0, XVEL);
-    randVel[1] = randDoubleRange(0, YVEL);
-    randVel[2] = randDoubleRange(0, ZVEL);
-    
-    randMass = randDoubleRange(MASS_MIN, MASS_MAX);
+    /* set accelation to 0 to begin with*/
+    x = 0;
+    y = 0;
+    z = 0;
+    randAcc = make_tuple(x, y, z);
+    randVel = make_tuple(x, y, z);    
 
     bodies[i] = Body(i, randMass, randPos, randAcc, randVel);
 
-    if (bodiesInRange(i, bodies[i])){
+    /* if body in range of another body, regenerate input
+     * else log the generation*/
+    if (bodiesInMinRange(bodies, i, bodies[i])){
       continue;
     } else {
+      bodies[i].logBody(outfilep);
       i++;
     }
-  }  
+  }
+  outfilep.close();
+  delete bodies;
+
+  /*TODO - delete this part of the code, it is only used as reference
+   * on how to read the input file*/
+  ifstream infilep;
+  infilep.open(outputfile, ios::in);
+
+  Body* bdy;
+  bdy = getBody(infilep);
+  while(bdy != NULL){
+
+    cout << *bdy << endl;
+
+    delete bdy;
+    bdy = getBody(infilep);
+  }
+
 
 }

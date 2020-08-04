@@ -5,6 +5,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 
 #include "Body.h"
 
@@ -35,12 +36,54 @@ Body::Body(int id, double mass, const vector_3d& pos, const vector_3d& acc, cons
     this->vel = vel;
 }
 
+
+/*dynamically allocates a new body that is read from the file*/
+Body* getBody(std::ifstream& f){
+
+  int id, dummy;
+  double mass;
+  double posx, posy, posz;
+  double accx, accy, accz;
+  double velx, vely, velz;
+  if (!(f >> id >> mass)){
+    return NULL;
+  }
+  f >> posx >> posy >> posz;
+  f >> accx >> accy >> accz;
+  f >> velx >> vely >> velz;
+
+  vector_3d pos = std::make_tuple(posx, posy, posz);
+  vector_3d acc = std::make_tuple(accx, accy, accz);
+  vector_3d vel = std::make_tuple(velx, vely, velz);
+ 
+  return new Body(id, mass, pos, acc, vel);
+
+}
+
+/*logs the body to a file*/
+void Body::logBody(std::ofstream& f){
+
+  f << this->id << " ";
+  f << this->mass << " ";
+  f << std::get<X>(this->pos) << " ";
+  f << std::get<Y>(this->pos) << " ";
+  f << std::get<Z>(this->pos) << " ";
+  f << std::get<X>(this->acc) << " ";
+  f << std::get<Y>(this->acc) << " ";
+  f << std::get<Z>(this->acc) << " ";
+  f << std::get<X>(this->vel) << " ";
+  f << std::get<Y>(this->vel) << " ";
+  f << std::get<Z>(this->vel) << " ";
+  f << std::endl;
+}
+
 /* Override "<<" operator for printing body details to I/O output stream */
 std::ostream& operator<<(std::ostream& out, const Body& b) {
     out << "Body " << b.id << ": " << std::endl;
-    out << "..pos = <" << std::get<X>(b.pos) << ", " << std::get<Y>(b.pos) << ", " << std::get<Z>(b.pos) << ">" << std::endl;
-    out << "..acc = <" << std::get<X>(b.acc) << ", " << std::get<Y>(b.acc) << ", " << std::get<Z>(b.acc) << ">" << std::endl;
-    out << "..vel = <" << std::get<X>(b.vel) << ", " << std::get<Y>(b.vel) << ", " << std::get<Z>(b.vel) << ">" << std::endl;
+    out << "..mass = "  << b.mass << std::endl; 
+    out << "..pos  = <" << std::get<X>(b.pos) << ", " << std::get<Y>(b.pos) << ", " << std::get<Z>(b.pos) << ">" << std::endl;
+    out << "..acc  = <" << std::get<X>(b.acc) << ", " << std::get<Y>(b.acc) << ", " << std::get<Z>(b.acc) << ">" << std::endl;
+    out << "..vel  = <" << std::get<X>(b.vel) << ", " << std::get<Y>(b.vel) << ", " << std::get<Z>(b.vel) << ">" << std::endl;
     return out;
 }
 

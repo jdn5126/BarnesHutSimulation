@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include <tuple>
+#include <fstream>
 
 typedef std::tuple<double, double, double> vector_3d;
 
@@ -49,10 +50,18 @@ public:
     /* Simulate movement of this body for t seconds given initial acceleration and velocity */
     void move(double t);
 
+    /* writes the body to a file*/
+    void logBody(std::ofstream& f);
+
     /* Demonstrates usage of Body class */
     static void demo(void);
 
 };
+
+
+/*from an input file, gathers the next body in the file*/
+Body* getBody(std::ifstream& f);
+
 
 /* Generate a new 3-dimensional zero vector of type vector_3d */
 constexpr vector_3d zero_vect() {
