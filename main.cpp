@@ -40,6 +40,20 @@ int main()
 
     // Print OctTree
     tree.print();
+    std::cout << std::endl;
+
+    // Update particle position to change octets
+    particles[0]->body.pos = std::make_tuple(10,13,0);
+
+    // Remove particle from tree and re-insert
+    tree.remove(particles[0]);
+    tree.print();
+    std::cout << std::endl;
+    tree.insert(particles[0]);
+    tree.print();
+    std::cout << std::endl;
+    tree.remove(particles[0]);
+    tree.print();
 
     //std::cout << std::endl;
     //Body::demo();

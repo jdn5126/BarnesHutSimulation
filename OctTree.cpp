@@ -95,6 +95,11 @@ OctTree::~OctTree() {
     delete root;
 }
 
+void
+OctTree::insert(Leaf *particle) {
+    insert(this->root, particle);
+}
+
 // Insert new particle into tree rooted at root
 void
 OctTree::insert(Root *root, Leaf *particle) {
@@ -105,17 +110,67 @@ OctTree::insert(Root *root, Leaf *particle) {
     // If octet is empty, insert leaf at octet
     if (child == nullptr) {
         root->children[octet] = particle;
+        root->numChildren += 1;
+        particle->octet = octet;
+        particle->parent = root;
     } else if (child->isLeaf()) {
         // If child is a leaf, construct a new subtree and re-insert child
         // along with particle.
         std::pair<vector_3d, vector_3d> bounds = getBounds(root, octet);
         Root *newRoot = new Root(root, bounds.first, bounds.second);
+        newRoot->octet = octet;
         root->children[octet] = newRoot;
         insert(newRoot, (Leaf *)child);
         insert(newRoot, particle);
     } else {
         // Continue down tree
         insert((Root *)root->children[octet], particle);
+    }
+}
+
+void
+OctTree::remove(Leaf *particle) {
+    // Invalidate parent pointer
+    Root *parent = (Root *)particle->parent;
+    particle->parent = nullptr;
+    parent->children[particle->octet] = nullptr;
+    parent->numChildren -= 1;
+
+    // Replace parent with Leaf if necessary
+    maybeReplaceRoot(parent);
+}
+
+void
+OctTree::maybeReplaceRoot(Root *root) {
+    if (root->numChildren == 0 && root != this->root) {
+        // If root has zero children, and it is not the root of the OctTree,
+        // remove root.
+        Root *parent = (Root *)root->parent;
+        parent->children[root->octet] = nullptr;
+        parent->numChildren -= 1;
+        delete root;
+        // Recurse on parent
+        maybeReplaceRoot(parent);
+    } else if (root->numChildren == 1) {
+        // If root has only one child, and that child is a Leaf, replace root
+        Leaf *leaf = nullptr;
+        for (Node *node : root->children) {
+            if (node != nullptr && node->isLeaf()) {
+                leaf = (Leaf *)node;
+                break;
+            }
+        }
+        if (leaf != nullptr) {
+            // Replace root with leaf
+            Root *parent = (Root *)root->parent;
+            int octet = root->octet;
+            parent->children[octet] = leaf;
+            leaf->parent = parent;
+            leaf->octet = octet;
+            delete root;
+            // Recurse on parent
+            maybeReplaceRoot(parent);
+        }
     }
 }
 
@@ -163,6 +218,7 @@ Root::Root(Node *parent, vector_3d lowerBound, vector_3d upperBound ) : Node(par
     for(int i=0; i < 8; i++) {
         this->children[i] = nullptr;
     }
+    this->numChildren = 0;
 }
 
 Root::~Root() {

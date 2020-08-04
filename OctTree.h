@@ -14,8 +14,9 @@ class Node {
 public:
     virtual bool isLeaf() = 0;
     Node(Node *parent);
-protected:
+// Member variables left public for simplicity.
     Node *parent;
+    int octet; // parent octet that Node consumes
 }; // end class Node
 
 class Leaf : public Node {
@@ -25,7 +26,7 @@ public:
         return true;
     }
     friend std::ostream& operator<<(std::ostream& out, const Leaf& f);
-    // TODO: make member variables private
+// Member variables left public for simplicity
     Body body;
 }; // end class Leaf
 
@@ -38,11 +39,12 @@ public:
     }
     friend std::ostream& operator<<(std::ostream& out, const Root& r);
 
-    // Member variables left public for simplicity
+// Member variables left public for simplicity
     vector_3d pos;
     vector_3d lowerBound;
     vector_3d upperBound;
     std::vector<Node *> children;
+    int numChildren;
 }; // end class Root
 
 // Data structure representing OctTree for Barnes-Hut Simulation
@@ -52,11 +54,18 @@ public:
             vector_3d upperBound);
     ~OctTree();
 
-    // Helper function to insert particle into Tree
+    // Helper functions to insert particle into Tree
+    void insert(Leaf *particle);
     void insert(Root *root, Leaf *particle);
 
     // Helper function to find octet to insert particle into
     int findOctet(const vector_3d &rootPos, const vector_3d &bodyPos);
+
+    // Helper function to remove Leaf from tree and rebalance tree
+    void remove(Leaf *particle);
+
+    // Helper function to maybe replace Root node with Leaf
+    void maybeReplaceRoot(Root *root);
 
     // Helper function to print Tree
     void print();
