@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <thread>
+#include <vector>
 #include "OctTree.h"
 
 static vector_3d
@@ -206,6 +207,51 @@ OctTree::maybeReplaceRoot(Root *root) {
 }
 
 void
+OctTree::setCenterOfMass() {
+    // Calculate center of mass for each Root node through recursion
+    centerOfMass(this->root);
+}
+
+void
+OctTree::centerOfMass(Root *root) {
+    std::vector<std::thread> threadPool;
+    // Spawn thread for each Root node
+    for (int i=0; i < 8; i++) {
+        Node *child = root->children[i];
+        if (child != nullptr && !child->isLeaf()) {
+            Root *newRoot = (Root *)child;
+            threadPool.push_back(std::thread(&OctTree::centerOfMass, this, newRoot));
+        }
+    }
+    // Wait for all threads to join
+    for (int i=0; i < threadPool.size(); i++) {
+        threadPool[i].join();
+    }
+    // Set center of mass for node
+    double x, y, z;
+    for (int i=0; i < 8; i++) {
+        Node *child = root->children[i];
+        if (child == nullptr) {
+            continue;
+        } else if (child->isLeaf()) {
+            Leaf *leaf = (Leaf *)child;
+            x += (leaf->body.mass * std::get<X>(leaf->body.pos));
+            y += (leaf->body.mass * std::get<Y>(leaf->body.pos));
+            z += (leaf->body.mass * std::get<Z>(leaf->body.pos));
+            root->mass += leaf->body.mass;
+        } else {
+            Root *rootChild = (Root *)child;
+            x += (rootChild->mass * std::get<X>(rootChild->centerOfMass));
+            y += (rootChild->mass * std::get<Y>(rootChild->centerOfMass));
+            z += (rootChild->mass * std::get<Z>(rootChild->centerOfMass));
+            root->mass += rootChild->mass;
+        }
+    }
+    // Update center of mass
+    root->centerOfMass = std::make_tuple(x / root->mass, y / root->mass, z / root->mass);
+}
+
+void
 OctTree::print() {
     std::cout << *(this->root) << std::endl;
     printRecurse(this->root);
@@ -266,7 +312,9 @@ std::ostream& operator<<(std::ostream& out, const Leaf& l) {
 }
 
 std::ostream& operator<<(std::ostream& out, const Root& r) {
-    out << "Root(" << std::get<X>(r.pos) << ", " << std::get<Y>(r.pos) <<
-        ", " << std::get<Z>(r.pos) << ")";
+    out << "Root(" << std::get<X>(r.pos) << ", " << std::get<Y>(r.pos) << ", " <<
+        std::get<Z>(r.pos) << ") mass: " << r.mass << " center of mass: (" <<
+        std::get<X>(r.centerOfMass) << ", " << std::get<Y>(r.centerOfMass) << ", " <<
+        std::get<Z>(r.centerOfMass) << ")";
     return out;
 }
