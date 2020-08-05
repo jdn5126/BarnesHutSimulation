@@ -10,11 +10,12 @@
 
 int main()
 {
-    // Generate particle inputs and 3D bounds
-    vector_3d lowerBound = std::make_tuple(0, 0, 0);
-    vector_3d upperBound = std::make_tuple(24, 24, 0);
+    // Get command line args:
+    //  steps     - number of time steps to simulate
+    //  inputFile - path to input file, which contains simulation bounds and particles
 
-    // Construct a set of Leaf pointers that encapsulate each particle.
+    // Parse input file and construct vector of Leaf objects
+
     // Memory allocated for Leaf is owned by OctTree and is freed when OctTree is destructed.
     std::vector<Leaf *> particles = {
         new Leaf(nullptr,
@@ -35,26 +36,15 @@ int main()
                  Body(8, 1, std::make_tuple(22, 8, 0), zero_vect(), zero_vect()))
     };
 
-    // Construct OctTree
-    OctTree tree = OctTree(particles, lowerBound, upperBound);
+    // Construct OctTree from vector of particles
+    OctTree tree = OctTree(particles, std::make_tuple(0, 0, 0), std::make_tuple(24, 24, 0));
 
-    // Print OctTree
-    tree.print();
-    std::cout << std::endl;
+    // Update OctTree to cache center of mass for each octet at Root node
+    tree.setCenterOfMass();
 
-    // Update particle position to change octets
-    particles[0]->body.pos = std::make_tuple(10,13,0);
-
-    // Remove particle from tree and re-insert
-    tree.remove(particles[0]);
-    tree.print();
-    std::cout << std::endl;
-    tree.insert(particles[0]);
-    tree.print();
-    std::cout << std::endl;
-    tree.remove(particles[0]);
     tree.print();
 
-    //std::cout << std::endl;
-    //Body::demo();
+    // Perform Barnes-Hut simulation for given number of time steps
+    //
+    // After each iteration, update OctTree structure and cached centers of mass
 }

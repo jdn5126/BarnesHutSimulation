@@ -44,6 +44,8 @@ public:
     vector_3d pos;
     vector_3d lowerBound;
     vector_3d upperBound;
+    double mass;
+    vector_3d centerOfMass;
     int numChildren;
     Node **children;
 }; // end class Root
@@ -66,10 +68,14 @@ public:
     // Helper function to remove Leaf from tree and rebalance tree
     void remove(Leaf *particle);
 
-    // Helper function to maybe replace Root node with Leaf
+    // Helper function to maybe replace Root node with Leaf node
     void maybeReplaceRoot(Root *root);
 
-    // Helper function to print Tree
+    // Helper functions to set center of mass for each Root node
+    void setCenterOfMass();
+    void centerOfMass(Root *root);
+
+    // Helper functions to print Tree
     void print();
     void printRecurse(Root *root);
 private:
