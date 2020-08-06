@@ -58,10 +58,8 @@ public:
 
 };
 
-
-/*from an input file, gathers the next body in the file*/
-Body* getBody(std::ifstream& f);
-
+/* From an input file, ingests the next Body from the file*/
+Body getBody(std::ifstream& f);
 
 /* Generate a new 3-dimensional zero vector of type vector_3d */
 inline vector_3d zero_vect() {

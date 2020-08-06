@@ -15,101 +15,82 @@ using namespace std;
 
 /*Creates a Random Double Floating Point Integer in the 
  *specified range*/
-inline double randDoubleRange(double a, double b)
-{
-  return ((b - a) * ((double)rand() / RAND_MAX)) + a;
+inline double randDoubleRange(double a, double b) {
+    return ((b - a) * ((double)rand() / RAND_MAX)) + a;
 }
-
 
 /*Checks if inputs were generated already in the
  *bodies array that are in the range by MAXR*/
-bool bodiesInMinRange(Body* bodies, int index, Body newBody){
-  int i;
+bool bodiesInMinRange(Body bodies[], int index, Body newBody) {
+    int i;
 
-  //TODO: could parallelize this loop
-  for (i = 0; i < index; i++){
-
-    if (bodies[i].distance(newBody) < MAXR){
-      return true;
+    // TODO: could parallelize this loop
+    for (i = 0; i < index; i++) {
+        if (bodies[i].distance(newBody) < MAXR) {
+            return true;
+        }
     }
-
-  }
-  return false;
-
+    return false;
 }
 
-
-/*generates the input and outputs it to a 
- *file*/
-int main(int argc, char* argv[]){
-
-  if (argc < 3){
-    cout << "ERROR: please use the usage:" << endl;
-    cout << "./inputGen <filename> <numbodies>" << endl;
-    exit(-1);
-  }
-
-  ofstream outfilep;
-  char* outputfile = argv[1];
-  outfilep.open(outputfile, ios::out);
-
-  if (!outfilep.is_open()){
-    cout << "ERROR: could not open file " << outputfile << endl;
-    exit(-1);
-  }
-
-  int num_bodies = atoi(argv[2]);
-  Body* bodies = new Body[num_bodies];
-
-  vector_3d randPos, randVel, randAcc;
-  double randMass, x, y, z;
-  int randExp;
-
-  int i = 0;
-  while( i < num_bodies){
-
-    /* make random coordinates/mass */
-    x = randDoubleRange(0, XRANGE);
-    y = randDoubleRange(0, YRANGE);
-    z = randDoubleRange(0, ZRANGE);
-    randPos = make_tuple(x, y, z);
-    randMass = randDoubleRange(1, MASS_MAX);
-
-    /* set accelation to 0 to begin with*/
-    x = 0;
-    y = 0;
-    z = 0;
-    randAcc = make_tuple(x, y, z);
-    randVel = make_tuple(x, y, z);    
-
-    bodies[i] = Body(i, randMass, randPos, randAcc, randVel);
-
-    /* if body in range of another body, regenerate input
-     * else log the generation*/
-    if (bodiesInMinRange(bodies, i, bodies[i])){
-      continue;
-    } else {
-      bodies[i].logBody(outfilep);
-      i++;
+// Generates input and writes objects to a file
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        cout << "ERROR: please use the usage:" << endl;
+        cout << "./inputGen <filename> <numbodies>" << endl;
+        exit(-1);
     }
-  }
-  outfilep.close();
-  delete bodies;
+    // Open output file
+    ofstream outfilep;
+    char *outputfile = argv[1];
+    outfilep.open(outputfile, ios::out);
 
-  /*TODO - delete this part of the code, it is only used as reference
-   * on how to read the input file*/
-  ifstream infilep;
-  infilep.open(outputfile, ios::in);
+    if (!outfilep.is_open()) {
+        cout << "ERROR: could not open file " << outputfile << endl;
+        exit(-1);
+    }
+    // Write number of bodies to be generated to output file
+    int num_bodies = atoi(argv[2]);
+    outfilep << num_bodies << endl;
+    // Write simulation bounds to output file
+    outfilep << 0 << " " << 0 << " " << 0 << endl;
+    outfilep << XRANGE << " " << YRANGE << " " << 0 << endl;
 
-  Body* bdy;
-  bdy = getBody(infilep);
-  while(bdy != NULL){
+    // Generate Body objects and write to output file
+    Body *bodies = new Body[num_bodies];
+    vector_3d randPos, randVel, randAcc;
+    double randMass, x, y, z;
+    int randExp;
 
-    cout << *bdy << endl;
+    int i = 0;
+    while (i < num_bodies) {
+        /* make random coordinates/mass */
+        x = randDoubleRange(0, XRANGE);
+        y = randDoubleRange(0, YRANGE);
+        z = 0;
+        randPos = make_tuple(x, y, z);
+        randMass = randDoubleRange(1, MASS_MAX);
 
-    delete bdy;
-    bdy = getBody(infilep);
-  }
+        /* set velocity and accelation to 0 to begin with*/
+        x = 0;
+        y = 0;
+        z = 0;
+        randAcc = make_tuple(x, y, z);
+        randVel = make_tuple(x, y, z);
 
+        bodies[i] = Body(i + 1, randMass, randPos, randAcc, randVel);
 
+        /* If Body is in range of another body, regenerate input
+         * else log the generation*/
+        if (bodiesInMinRange(bodies, i, bodies[i])) {
+            continue;
+        } else {
+            bodies[i].logBody(outfilep);
+            i++;
+        }
+    }
+    outfilep.close();
+    delete []bodies;
+
+    return 0;
 }
