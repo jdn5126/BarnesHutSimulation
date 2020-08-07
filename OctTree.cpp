@@ -23,30 +23,81 @@ static std::pair<vector_3d, vector_3d>
 getBounds(Root *root, int octet) {
     vector_3d lowerBound;
     vector_3d upperBound;
-    double x, y;
+    double x, y, z;
 
     // Return bounds for new root node within octet
-    // TODO: Figure out Z coordinates...
-    if( octet == 0 ) {
-        lowerBound = root->pos;
-        upperBound = root->upperBound;
-    } else if( octet == 2 ) {
+    if (octet == 0) {
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->pos);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->upperBound);
+        y = std::get<Y>(root->upperBound);
+        z = std::get<Z>(root->upperBound);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 1) {
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->lowerBound);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->upperBound);
+        y = std::get<Y>(root->upperBound);
+        z = std::get<Z>(root->pos);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 2) {
         x = std::get<X>(root->lowerBound);
         y = std::get<Y>(root->pos);
-        lowerBound = std::make_tuple(x, y, 0);
+        z = std::get<Z>(root->pos);
+        lowerBound = std::make_tuple(x, y, z);
         x = std::get<X>(root->pos);
         y = std::get<Y>(root->upperBound);
-        upperBound = std::make_tuple(x, y, 0);
-    } else if( octet == 4) {
-        lowerBound = root->lowerBound;
-        upperBound = root->pos;
-    } else if( octet == 6) {
+        z = std::get<Z>(root->upperBound);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 3) {
+        x = std::get<X>(root->lowerBound);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->lowerBound);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->upperBound);
+        z = std::get<Z>(root->pos);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 4) {
+        x = std::get<X>(root->lowerBound);
+        y = std::get<Y>(root->lowerBound);
+        z = std::get<Z>(root->pos);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->upperBound);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 5) {
+        x = std::get<X>(root->lowerBound);
+        y = std::get<Y>(root->lowerBound);
+        z = std::get<Z>(root->lowerBound);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->pos);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 6) {
         x = std::get<X>(root->pos);
         y = std::get<Y>(root->lowerBound);
-        lowerBound = std::make_tuple(x, y, 0);
+        z = std::get<Z>(root->pos);
+        lowerBound = std::make_tuple(x, y, z);
         x = std::get<X>(root->upperBound);
         y = std::get<Y>(root->pos);
-        upperBound = std::make_tuple(x, y, 0);
+        z = std::get<Z>(root->upperBound);
+        upperBound = std::make_tuple(x, y, z);
+    } else if (octet == 7) {
+        x = std::get<X>(root->pos);
+        y = std::get<Y>(root->lowerBound);
+        z = std::get<Z>(root->lowerBound);
+        lowerBound = std::make_tuple(x, y, z);
+        x = std::get<X>(root->upperBound);
+        y = std::get<Y>(root->pos);
+        z = std::get<Z>(root->pos);
+        upperBound = std::make_tuple(x, y, z);
     }
     return std::pair<vector_3d, vector_3d>(lowerBound, upperBound);
 }
@@ -87,7 +138,10 @@ OctTree::OctTree(std::vector<Leaf *> &particles, vector_3d lowerBound,
     // Construct root of the tree
     this->root = new Root(nullptr, lowerBound, upperBound);
 
-    // Insert particles into tree in parallel
+    // Cache whether class functions should use multiple threads
+    this->parallel = NULL == std::getenv("SEQ");
+
+    // Insert particles into tree
     insertParticles(particles);
 }
 
@@ -140,19 +194,25 @@ OctTree::insertParticles(std::vector<Leaf *> &particles) {
     for (Leaf *particle : particles) {
         // Determine octet for particle
         int octet = findOctet(this->root->pos, particle->body.pos);
-        // If existing thread is already executing on octet, wait for it to complete.
-        std::map<int, std::thread>::iterator it = threadPool.find(octet);
-        if (it != threadPool.end()) {
+        // Insert particle into tree sequentially or using std::thread
+        if (this->parallel) {
+            // If existing thread is already executing on octet, wait for it to complete.
+            std::map<int, std::thread>::iterator it = threadPool.find(octet);
+            if (it != threadPool.end()) {
+                it->second.join();
+            }
+            threadPool[octet] =
+                std::thread(&OctTree::insertParticle, this, this->root, particle, octet);
+        } else {
+            insertParticle(this->root, particle, octet);
+        }
+    }
+    if (this->parallel) {
+        // Wait for all in-flight insertions to complete.
+        std::map<int, std::thread>::iterator it;
+        for (it = threadPool.begin(); it != threadPool.end(); ++it) {
             it->second.join();
         }
-        // Launch thread to insert particle into octet.
-        threadPool[octet] =
-            std::thread(&OctTree::insertParticle, this, this->root, particle, octet);
-    }
-    // Join all in-flight threads
-    std::map<int, std::thread>::iterator it;
-    for (it = threadPool.begin(); it != threadPool.end(); ++it) {
-        it->second.join();
     }
 }
 
@@ -215,17 +275,23 @@ OctTree::setCenterOfMass() {
 void
 OctTree::centerOfMass(Root *root) {
     std::vector<std::thread> threadPool;
-    // Spawn thread for each Root node
+    // Recurse on each Root node
     for (int i=0; i < 8; i++) {
         Node *child = root->children[i];
         if (child != nullptr && !child->isLeaf()) {
             Root *newRoot = (Root *)child;
-            threadPool.push_back(std::thread(&OctTree::centerOfMass, this, newRoot));
+            if (this->parallel) {
+                threadPool.push_back(std::thread(&OctTree::centerOfMass, this, newRoot));
+            } else {
+                centerOfMass(newRoot);
+            }
         }
     }
-    // Wait for all threads to join
-    for (int i=0; i < threadPool.size(); i++) {
-        threadPool[i].join();
+    if (this->parallel) {
+        // Wait for all threads to join
+        for (int i=0; i < threadPool.size(); i++) {
+            threadPool[i].join();
+        }
     }
     // Set center of mass for node
     double x, y, z;

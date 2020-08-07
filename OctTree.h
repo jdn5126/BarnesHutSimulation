@@ -80,6 +80,7 @@ public:
     void printRecurse(Root *root);
 private:
     Root *root;
+    bool parallel;
 }; // end class OctTree
 
 #endif // _OCTTREE_DEFINED
