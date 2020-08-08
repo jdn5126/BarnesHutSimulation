@@ -1,11 +1,12 @@
-CC=g++
-CFLAGS=-g --std=c++11
+CXX=/usr/local/opt/llvm/bin/clang++
+LDFLAGS=-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
+CPPFLAGS=-I/usr/local/opt/llvm/include -g -std=c++11
 
 barnesHut: main.cpp Body.cpp OctTree.cpp
-	$(CC) $(CFLAGS) -o $@ $^ -I.
+	$(CXX) $(CPPFLAGS) $(LDFLAGS) -o $@ $^ -fopenmp -I.
 
 inputGen: inputGen.cpp Body.cpp
-	$(CC) $(CFLAGS) -o $@ $^ -I.
+	$(CXX) $(CPPFLAGS) -o $@ $^ -I.
 
 clean:
 	rm -f barnesHut
