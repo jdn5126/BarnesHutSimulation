@@ -31,6 +31,8 @@
 *.out
 *.app
 barnesHut
+barnesHutParallel
+bruteForce
 inputGen
 
 # macOS debug symbols
