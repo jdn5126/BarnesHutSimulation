@@ -269,32 +269,27 @@ OctTree::maybeReplaceRoot(Root *root) {
 void
 OctTree::setCenterOfMass() {
     // Calculate center of mass for each Root node through recursion
-    centerOfMass(this->root);
+    #pragma omp parallel
+    {
+        #pragma omp single
+        centerOfMass(this->root);
+    }
 }
 
 void
 OctTree::centerOfMass(Root *root) {
-    std::vector<std::thread> threadPool;
-    // Recurse on each Root node
+    // Spawn task for each Root node and wait for tasks to complete
     for (int i=0; i < 8; i++) {
         Node *child = root->children[i];
         if (child != nullptr && !child->isLeaf()) {
-            Root *newRoot = (Root *)child;
-            if (this->parallel) {
-                threadPool.push_back(std::thread(&OctTree::centerOfMass, this, newRoot));
-            } else {
-                centerOfMass(newRoot);
-            }
+            #pragma omp task
+            centerOfMass((Root *)child);
         }
     }
-    if (this->parallel) {
-        // Wait for all threads to join
-        for (int i=0; i < threadPool.size(); i++) {
-            threadPool[i].join();
-        }
-    }
+    #pragma omp taskwait
+
     // Set center of mass for node
-    double x, y, z;
+    double x = 0.0, y = 0.0, z = 0.0;
     for (int i=0; i < 8; i++) {
         Node *child = root->children[i];
         if (child == nullptr) {
