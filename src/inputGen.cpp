@@ -26,13 +26,15 @@ inline double randDoubleRange(double a, double b) {
 
 // Checks that no Body is within MAX_RADIUS of another Body
 bool bodiesInMinRange(Body bodies[], int index, Body newBody) {
-    int i;
+  int i, retVal;
+  #pragma omp parallel
+  {
+    #pragma omp for reduction(+:retVal)
     for (i = 0; i < index; i++) {
-        if (bodies[i].distance(newBody) < MAX_RADIUS) {
-            return true;
-        }
+        retVal += (bodies[i].distance(newBody) < MAX_RADIUS);
     }
-    return false;
+  }
+  return retVal != 0;
 }
 
 // Generates input and writes objects to a file

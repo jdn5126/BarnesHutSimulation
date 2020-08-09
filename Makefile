@@ -2,8 +2,9 @@ IDIR=./include
 
 CXX=g++
 #CXX=/usr/local/opt/llvm/bin/clang++
-LDFLAGS=-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
-CPPFLAGS=-I/usr/local/opt/llvm/include -g -std=c++11 -I$(IDIR) -fopenmp
+#LDFLAGS=-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
+#CPPFLAGS=-I/usr/local/opt/llvm/include -g -std=c++11 -I$(IDIR) -fopenmp
+CPPFLAGS=-std=c++11 -I$(IDIR) -fopenmp
 
 _DEPS = OctTree.h Node.h Body.h Timer.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
