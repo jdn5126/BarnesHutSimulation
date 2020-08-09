@@ -9,7 +9,6 @@
 #include <map>
 #include <thread>
 #include <vector>
-#include "omp.h"
 #include "OctTree.h"
 
 static std::pair<vector_3d, vector_3d> getBounds(Root *root, int octet) {

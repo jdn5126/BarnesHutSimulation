@@ -20,23 +20,11 @@ public:
     time_point_t execStop;
     microseconds_t execDuration;
 
-    void start(void) {
-        this->execStart = std::chrono::high_resolution_clock::now();
-    }
+    void start();
+    void stop();
+    long long duration();
 
-    void stop(void) {
-        this->execStop = std::chrono::high_resolution_clock::now();
-        this->execDuration = std::chrono::duration_cast<microseconds_t>(this->execStop - this->execStart);
-    }
-
-    long long duration(void) {
-        return execDuration.count();
-    }
-
-    friend std::ostream& operator<<(std::ostream& out, const Timer& t) {
-        out << "Timer: " << t.execDuration.count() << " microseconds" << std::endl;
-        return out;
-    }
+    friend std::ostream& operator<<(std::ostream& out, const Timer& t);
 
 };
 
