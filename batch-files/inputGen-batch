@@ -1,0 +1,52 @@
+#!/bin/bash
+#----------------------------------------------------
+# Sample Slurm job script
+#   for TACC Stampede2 KNL nodes
+#
+#   *** OpenMP Job on Normal Queue ***
+# 
+# Last revised: 20 Oct 2017
+#
+# Notes:
+#
+#   -- Launch this script by executing
+#   -- Copy/edit this script as desired.  Launch by executing
+#      "sbatch knl.openmp.slurm" on a Stampede2 login node.
+#
+#   -- OpenMP codes run on a single node (upper case N = 1).
+#        OpenMP ignores the value of lower case n,
+#        but slurm needs a plausible value to schedule the job.
+#
+#   -- Default value of OMP_NUM_THREADS is 1; be sure to change it!
+#
+#   -- Increase thread count gradually while looking for optimal setting.
+#        If there is sufficient memory available, the optimal setting
+#        is often 68 (1 thread per core) or 136 (2 threads per core).
+#----------------------------------------------------
+#SBATCH -J bhs             # Job name
+#SBATCH -o bhs.o%j         # Name of stdout output file
+#SBATCH -e bhs.e%j         # Name of stderr error file
+#SBATCH -p normal          # Queue (partition) name
+#SBATCH -N 1               # Total # of nodes (must be 1 for OpenMP)
+#SBATCH -n 1               # Total # of mpi tasks (should be 1 for OpenMP)
+#SBATCH -t 04:00:00        # Run time (hh:mm:ss)
+#SBATCH --mail-user=campbeda@utexas.edu
+#SBATCH --mail-type=all    # Send email at begin and end of job
+#SBATCH -A EE-382C-EE-361C-Mult
+# Other commands must follow all #SBATCH directives...
+module list
+pwd
+date
+# Set thread count (default value is 1)...
+export OMP_NUM_THREADS=68
+# Launch OpenMP code...
+./inputGen $WORK/input/in2_10.txt 1024
+./inputGen $WORK/input/in2_20.txt 1048576
+./inputGen $WORK/input/in2_15.txt 32768
+./inputGen $WORK/input/in2_11.txt 2048
+./inputGen $WORK/input/in2_12.txt 4096
+./inputGen $WORK/input/in2_13.txt 8192
+./inputGen $WORK/input/in2_14.txt 16384
+./inputGen $WORK/input/in2_17.txt 131072
+#./barnesHutParallel 10 in.txt out.txt
+# ---------------------------------------------------
