@@ -125,28 +125,28 @@ date
 # ./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN64_2_17.txt 
 
 
-export OMP_NUM_THREADS=68
-# Launch OpenMP code...
-echo "Running number of threads N68"
-./barnesHutParallel 500 $WORK/input/in2_10.txt $WORK/output/barnesHutParallelN68_2_10.txt 
-./barnesHutParallel 500 $WORK/input/in2_11.txt $WORK/output/barnesHutParallelN68_2_11.txt 
-./barnesHutParallel 500 $WORK/input/in2_12.txt $WORK/output/barnesHutParallelN68_2_12.txt 
-./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13.txt 
-./barnesHutParallel 500 $WORK/input/in2_14.txt $WORK/output/barnesHutParallelN68_2_14.txt 
-./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15.txt 
-#./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN68_2_17.txt 
-./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN68_2_20.txt  
+# export OMP_NUM_THREADS=68
+# # Launch OpenMP code...
+# echo "Running number of threads N68"
+# ./barnesHutParallel 500 $WORK/input/in2_10.txt $WORK/output/barnesHutParallelN68_2_10.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_11.txt $WORK/output/barnesHutParallelN68_2_11.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_12.txt $WORK/output/barnesHutParallelN68_2_12.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_14.txt $WORK/output/barnesHutParallelN68_2_14.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15.txt 
+# #./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN68_2_17.txt 
+# ./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN68_2_20.txt  
 
-# echo "Running Varied Timetemps"
-# ./barnesHutParallel 100 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps100.txt  
-# ./barnesHutParallel 200 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps200.txt  
-# ./barnesHutParallel 300 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps300.txt  
-# ./barnesHutParallel 400 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps400.txt  
-# ./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps500.txt  
-# ./barnesHutParallel 600 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps600.txt  
-# ./barnesHutParallel 700 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps700.txt  
-# ./barnesHutParallel 800 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps800.txt  
-# ./barnesHutParallel 900 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps900.txt  
+echo "Running Varied Timetemps"
+./barnesHutParallel 100 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps100.txt  
+./barnesHutParallel 200 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps200.txt  
+./barnesHutParallel 300 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps300.txt  
+./barnesHutParallel 400 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps400.txt  
+./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps500.txt  
+./barnesHutParallel 600 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps600.txt  
+./barnesHutParallel 700 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps700.txt  
+./barnesHutParallel 800 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps800.txt  
+./barnesHutParallel 900 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps900.txt  
 
 
 # ---------------------------------------------------

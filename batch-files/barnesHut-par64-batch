@@ -24,8 +24,8 @@
 #        is often 68 (1 thread per core) or 136 (2 threads per core).
 #----------------------------------------------------
 #SBATCH -J par64             # Job name
-#SBATCH -o batch-out/bhs.o%j         # Name of stdout output file
-#SBATCH -e batch-out/bhs.e%j         # Name of stderr error file
+#SBATCH -o batch-out/par64.o%j         # Name of stdout output file
+#SBATCH -e batch-out/par64.e%j         # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes (must be 1 for OpenMP)
 #SBATCH -n 1               # Total # of mpi tasks (should be 1 for OpenMP)
@@ -116,13 +116,13 @@ export OMP_NUM_THREADS=64
 # Launch OpenMP code...
 echo "Running number of threads N64"
 ./barnesHutParallel 500 $WORK/input/in2_10.txt $WORK/output/barnesHutParallelN64_2_10.txt 
-./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN64_2_20.txt  
-./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN64_2_15.txt 
 ./barnesHutParallel 500 $WORK/input/in2_11.txt $WORK/output/barnesHutParallelN64_2_11.txt 
 ./barnesHutParallel 500 $WORK/input/in2_12.txt $WORK/output/barnesHutParallelN64_2_12.txt 
 ./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN64_2_13.txt 
 ./barnesHutParallel 500 $WORK/input/in2_14.txt $WORK/output/barnesHutParallelN64_2_14.txt 
-./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN64_2_17.txt 
+./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN64_2_15.txt 
+#./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN64_2_17.txt 
+./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN64_2_20.txt  
 
 
 # export OMP_NUM_THREADS=68
