@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Unable to open " << argv[3] << std::endl;
         exit(-1);
     }
+    bool log = NULL != std::getenv("LOG");
 
     // Parse input file and construct vector of Leaf objects
     int numParticles;
@@ -77,11 +78,13 @@ int main(int argc, char *argv[]) {
     infile.close();
 
     // Write initial positions
-    outfile << numParticles << std::endl;
-    outfile << steps << std::endl;
-    for (int i = 0; i < numParticles; i++) {
-        outfile << 0 << " ";
-        particles[i]->body.logBody(outfile);
+    if (log) {
+        outfile << numParticles << std::endl;
+        outfile << steps << std::endl;
+        for (int i = 0; i < numParticles; i++) {
+            outfile << 0 << " ";
+            particles[i]->body.logBody(outfile);
+        }
     }
 
     // Start timer
@@ -104,16 +107,23 @@ int main(int argc, char *argv[]) {
             particles[j]->body.move(DELTA);
         }
         // log new positions to file
-        for (int j = 0; j < numParticles; j++) {
-            outfile << i+1 << " ";
-            particles[j]->body.logBody(outfile);
+        if (log) {
+            for (int j = 0; j < numParticles; j++) {
+                outfile << i+1 << " ";
+                particles[j]->body.logBody(outfile);
+            }
         }
     }
 
     timer.stop();
     std::cout << timer << std::endl;
-    outfile << timer.duration() << std::endl;
+    if (log) {
+        outfile << timer.duration() << std::endl;
+    }
 
+    // Close output file and free memory allocated for particles
     outfile.close();
+    particles.clear();
 
+    return 0;
 }
