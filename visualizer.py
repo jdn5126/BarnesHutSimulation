@@ -23,14 +23,18 @@ for line in lines:
     # Insert position into dictionary
     if timeStep not in particles:
         particles[timeStep] = []
-    import pdb
-    pdb.set_trace()
     particles[timeStep].append((float(posx), float(posy)))
 
+# Plot parameters
+plt.style.use('dark_background')
 fig, ax = plt.subplots()
+plt.title('Barnes Hut Simulation')
+plt.xlabel('X Position')
+plt.ylabel('Y Position')
+plt.grid(color='w', linestyle='--', linewidth=1)
 ax.set_xlim(0, 24)
 ax.set_ylim(0, 24)
-ln, = ax.plot([], [], 'ro', lw=2)
+ln, = ax.plot([], [], 'ro', lw=3)
 
 def init():
     ln.set_data([], [])
@@ -42,7 +46,7 @@ def update(frame):
     ln.set_data(xdata, ydata)
     return ln,
 
-ani = FuncAnimation(fig, update, frames=len(particles), interval=2000, init_func=init, blit=True, repeat=False)
-ani.save("bhs.gif", writer="imagemagick", fps=5)
+ani = FuncAnimation(fig, update, frames=len(particles), interval=1000, init_func=init, blit=True, repeat=False)
+ani.save("bhs.gif", writer="imagemagick", fps=30)
 
 #plt.show() # plot when GUI based backend is used

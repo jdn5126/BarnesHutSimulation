@@ -271,7 +271,7 @@ OctTree::setCenterOfMass() {
 void
 OctTree::centerOfMass(Root *root) {
     // Spawn task for each Root node and wait for tasks to complete
-    for (int i=0; i < 8; i++) {
+    for (int i=0; i < OCT_REGIONS; i++) {
         Node *child = root->children[i];
         if (child != nullptr && !child->isLeaf()) {
             #pragma omp task
@@ -282,7 +282,8 @@ OctTree::centerOfMass(Root *root) {
 
     // Set center of mass for node
     double x = 0.0, y = 0.0, z = 0.0;
-    for (int i=0; i < 8; i++) {
+    root->mass = 0.0;
+    for (int i=0; i < OCT_REGIONS; i++) {
         Node *child = root->children[i];
         if (child == nullptr) {
             continue;
@@ -325,7 +326,7 @@ OctTree::partialTreeForce(Leaf *particle, Node *node) {
             // root only has a single child or is far enough away
             return particle->rootForce(root, dist);
         } else {
-            // root to close, need to follow all its children
+            // root too close, need to follow all its children
             vector_3d f = zero_vect();
             for (int i = 0; i < OCT_REGIONS; ++i) {
                 vector_3d temp = partialTreeForce(particle, root->children[i]);
@@ -346,12 +347,10 @@ OctTree::checkParticleBounds(Leaf *particle) {
         std::get<Z>(particle->body.pos) < std::get<Z>(root->lowerBound) ||
         std::get<X>(particle->body.pos) > std::get<X>(root->upperBound) ||
         std::get<Y>(particle->body.pos) > std::get<Y>(root->upperBound) ||
-        std::get<Z>(particle->body.pos) > std::get<Z>(root->upperBound))
-    {
-        std::cout << "OUT OF BOUNDS!" << std::endl;
+        std::get<Z>(particle->body.pos) > std::get<Z>(root->upperBound)) {
         return true;
     }
-    return false;
+    return particle->octet != findOctet(root->pos, particle->body.pos);
 }
 
 void

@@ -97,16 +97,17 @@ int main(int argc, char *argv[]) {
     tree.setCenterOfMass();
 
     // Perform Barnes-Hut simulation for given number of time steps
+    bool outOfBounds[numParticles];
     for (int i = 0; i < steps; i++) {
         // for each particle, calculate total gravitational force and update accelerations
-        #pragma omp parallel for shared(particles, numParticles, tree)
+        #pragma omp parallel for
         for (int j = 0; j < numParticles; j++) {
             vector_3d f = tree.treeForce(particles[j]);
             particles[j]->body.apply(f);
         }
 
         // simulate movement of time step
-        #pragma omp parallel for shared(particles, numParticles)
+        #pragma omp parallel for
         for (int j = 0; j < numParticles; j++) {
             particles[j]->body.move(DELTA);
         }
@@ -119,24 +120,16 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        bool outOfBounds[numParticles];
-
         // find all out of bounds particles
-        #pragma omp parallel for shared(particles, numParticles, tree)
+        #pragma omp parallel for
         for (int j = 0; j < numParticles; j++) {
             outOfBounds[j] = tree.checkParticleBounds(particles[j]);
         }
 
-        // remove out of bounds particles
+        // Remove and re-insert out of bounds particles
         for (int j = 0; j < numParticles; j++) {
             if (outOfBounds[j]) {
                 tree.remove(particles[j]);
-            }
-        }
-
-        // re-insert removed out of bounds particles
-        for (int j = 0; j < numParticles; j++) {
-            if (outOfBounds[j]) {
                 tree.insert(particles[j]);
             }
         }

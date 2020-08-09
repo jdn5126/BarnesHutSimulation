@@ -38,6 +38,7 @@ inputGen
 # macOS debug symbols
 *.dSYM/
 
-# Other
-*.txt
+# Repository Specific
+in*.txt
 *-batch
+*.gif
