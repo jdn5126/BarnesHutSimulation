@@ -1,7 +1,7 @@
 IDIR=./include
 CXX=g++
 #CXX=/usr/local/opt/llvm/bin/clang++
-#LDFLAGS=-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
+LDFLAGS=-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib
 #CPPFLAGS=-I/usr/local/opt/llvm/include -I$(IDIR) -std=c++11 -fopenmp
 CPPFLAGS=-I$(IDIR) -std=c++11 -fopenmp
 
