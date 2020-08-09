@@ -28,11 +28,22 @@ Root::Root(Node *parent, vector_3d lowerBound, vector_3d upperBound) : Node(pare
 }
 
 Root::~Root() {
-    // Delete children
-    // Commented out because causing seg fault
-    // for (int i=0; i < 8; ++i) {
-    //     delete this->children[i];
-    // }
+    // Free dynamic memory owned by Root node
+    for (int i=0; i < OCT_REGIONS; ++i) {
+        Node *child = children[i];
+        if (child == nullptr) {
+            continue;
+        }
+        // Delete Root nodes. Memory for Leaf nodes is owned by main program
+        if (child->isLeaf()) {
+            child->octet = 0;
+            child->parent = nullptr;
+        } else {
+            delete child;
+        }
+    }
+    // Delete memory allocated for children array
+    delete []this->children;
 }
 
 Leaf::Leaf(Node *parent, Body &&body) : Node(parent) {

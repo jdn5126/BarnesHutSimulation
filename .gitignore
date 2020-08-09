@@ -37,3 +37,7 @@ inputGen
 
 # macOS debug symbols
 *.dSYM/
+
+# Other
+*.txt
+*-batch
