@@ -147,9 +147,7 @@ int main(int argc, char *argv[]) {
 
     timer.stop();
     std::cout << timer << std::endl;
-    if (log) {
-        outfile << timer.duration() << std::endl;
-    }
+    outfile << timer.duration() << std::endl;
 
     // Close output file and free memory allocated for particles
     outfile.close();
