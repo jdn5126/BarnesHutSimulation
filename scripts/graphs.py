@@ -82,3 +82,25 @@ plt.ylabel("Time (us)")
 plt.title("Barnes-Hut Simulation Time vs Number of Bodes")
 plt.legend()
 plt.show()
+
+
+steps = ["barnesHutParallelN68_2_13_steps100.txt",
+         "barnesHutParallelN68_2_13_steps200.txt",
+         "barnesHutParallelN68_2_13_steps300.txt",
+         "barnesHutParallelN68_2_13_steps400.txt",
+         "barnesHutParallelN68_2_13_steps500.txt",
+         "barnesHutParallelN68_2_13_steps600.txt",
+         "barnesHutParallelN68_2_13_steps700.txt",
+         "barnesHutParallelN68_2_13_steps800.txt",
+         "barnesHutParallelN68_2_13_steps900.txt"]
+
+steps_x_values = [100, 200, 300, 400, 500, 600, 700, 800, 900]
+
+steps_y_values = getYValues(steps)
+
+plt.plot(steps_x_values, steps_y_values)
+plt.scatter(steps_x_values, steps_y_values)
+plt.xlabel("Number of Time Steps")
+plt.ylabel("Time (us)")
+plt.title("Barnes-Hut Simulation Time vs Number of Time Steps")
+plt.show()
