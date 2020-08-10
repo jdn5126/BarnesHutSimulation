@@ -41,13 +41,13 @@ date
 export OMP_NUM_THREADS=1
 # Launch OpenMP code...
 #echo "Running number of threads N1"
-./barnesHut 500 $WORK/input/in2_10.txt $WORK/output/barnesHutN1_2_10.txt 
-#./barnesHut 500 $WORK/input/in2_20.txt $WORK/output/barnesHutN1_2_20.txt  
-./barnesHut 500 $WORK/input/in2_15.txt $WORK/output/barnesHutN1_2_15.txt 
-./barnesHut 500 $WORK/input/in2_11.txt $WORK/output/barnesHutN1_2_11.txt 
-./barnesHut 500 $WORK/input/in2_12.txt $WORK/output/barnesHutN1_2_12.txt 
-./barnesHut 500 $WORK/input/in2_13.txt $WORK/output/barnesHutN1_2_13.txt 
-./barnesHut 500 $WORK/input/in2_14.txt $WORK/output/barnesHutN1_2_14.txt 
+./bruteForce 500 $WORK/input/in2_10.txt $WORK/output/bruteForceN1_2_10.txt 
+#./bruteForce 500 $WORK/input/in2_20.txt $WORK/output/bruteForceN1_2_20.txt  
+#./bruteForce 500 $WORK/input/in2_15.txt $WORK/output/bruteForceN1_2_15.txt 
+#./bruteForce 500 $WORK/input/in2_11.txt $WORK/output/bruteForceN1_2_11.txt 
+./bruteForce 500 $WORK/input/in2_12.txt $WORK/output/bruteForceN1_2_12.txt 
+./bruteForce 500 $WORK/input/in2_13.txt $WORK/output/bruteForceN1_2_13.txt 
+./bruteForce 500 $WORK/input/in2_14.txt $WORK/output/bruteForceN1_2_14.txt 
 #./barnesHut 500 $WORK/input/in2_17.txt $WORK/output/barnesHutN1_2_17.txt 
 
 
