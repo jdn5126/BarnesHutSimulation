@@ -138,15 +138,15 @@ date
 # ./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN68_2_20.txt  
 
 echo "Running Varied Timetemps"
-./barnesHutParallel 100 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps100.txt  
-./barnesHutParallel 200 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps200.txt  
-./barnesHutParallel 300 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps300.txt  
-./barnesHutParallel 400 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps400.txt  
-./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps500.txt  
-./barnesHutParallel 600 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps600.txt  
-./barnesHutParallel 700 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps700.txt  
-./barnesHutParallel 800 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps800.txt  
-./barnesHutParallel 900 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13_steps900.txt  
+./barnesHutParallel 100 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps100.txt  
+./barnesHutParallel 200 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps200.txt  
+./barnesHutParallel 300 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps300.txt  
+./barnesHutParallel 400 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps400.txt  
+./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps500.txt  
+./barnesHutParallel 600 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps600.txt  
+./barnesHutParallel 700 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps700.txt  
+./barnesHutParallel 800 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps800.txt  
+./barnesHutParallel 900 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15_steps900.txt  
 
 
 # ---------------------------------------------------

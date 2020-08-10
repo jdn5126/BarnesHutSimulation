@@ -60,8 +60,8 @@ echo "Running number of threads N8"
 ./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN8_2_13.txt 
 ./barnesHutParallel 500 $WORK/input/in2_14.txt $WORK/output/barnesHutParallelN8_2_14.txt 
 ./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN8_2_15.txt 
-#./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN8_2_17.txt #maybe if we have time
-#./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN8_2_20.txt #maybe if we have time
+./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN8_2_17.txt #maybe if we have time
+./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN8_2_20.txt #maybe if we have time
 
 # export OMP_NUM_THREADS=16
 # # Launch OpenMP code...

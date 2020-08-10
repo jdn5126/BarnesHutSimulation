@@ -134,7 +134,7 @@ echo "Running number of threads N68"
 ./barnesHutParallel 500 $WORK/input/in2_13.txt $WORK/output/barnesHutParallelN68_2_13.txt 
 ./barnesHutParallel 500 $WORK/input/in2_14.txt $WORK/output/barnesHutParallelN68_2_14.txt 
 ./barnesHutParallel 500 $WORK/input/in2_15.txt $WORK/output/barnesHutParallelN68_2_15.txt 
-#./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN68_2_17.txt 
+./barnesHutParallel 500 $WORK/input/in2_17.txt $WORK/output/barnesHutParallelN68_2_17.txt 
 ./barnesHutParallel 500 $WORK/input/in2_20.txt $WORK/output/barnesHutParallelN68_2_20.txt  
 
 # echo "Running Varied Timetemps"
