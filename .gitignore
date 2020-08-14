@@ -40,5 +40,9 @@ inputGen
 
 # Repository Specific
 in*.txt
-*-batch
+#*-batch  #I'd like to version control these
 *.gif
+
+#batch output files
+batch-out
+batch-out/*
