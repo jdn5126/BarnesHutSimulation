@@ -7,4 +7,3 @@ sbatch batch-files/barnesHut-par32-batch
 sbatch batch-files/barnesHut-par64-batch
 sbatch batch-files/barnesHut-par68-batch
 sbatch batch-files/barnesHut-par68-varsteps-batch
-
